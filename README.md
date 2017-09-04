@@ -1,4 +1,6 @@
 # mikuappend
-## How to run 
+## How to run
+```
 docker build -t mikuappend .
-docker run -d -p 8080:8080 mikuappend
+docker run -d -p 8080:8080 --name mikuappend mikuappend
+```

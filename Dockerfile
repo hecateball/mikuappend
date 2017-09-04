@@ -7,13 +7,12 @@ ENV PAYARA_VERSION 172
 ENV PACKAGE_FILE_NAME payara-micro.jar
 ENV PAYARA_MICRO_JAR=$PAYARA_PATH/$PACKAGE_FILE_NAME
 ENV DEPLOYMENT_DIR $PAYARA_PATH/deployments
-ENV AUTODEPLOY_DIR $DEPLOY_DIR
 
 #mikuappend
 ENV MIKUAPPEND_DIR /home/mikuappend
 
 RUN apk update \
- && apk add ca-certificates wget maven \
+ && apk add ca-certificates wget maven git \
  && update-ca-certificates \
  && mkdir -p $DEPLOYMENT_DIR \
  && mkdir -p $MIKUAPPEND_DIR \
@@ -32,7 +31,11 @@ ADD . $MIKUAPPEND_DIR
 USER mikuappend
 WORKDIR $MIKUAPPEND_DIR
 
-RUN mvn install
+#install mastodon4j
+RUN git clone --depth=1 https://github.com/hecateball/mastodon4j.git && cd mastodon4j && mvn clean install
+
+#build mikuappend
+RUN mvn clean install
 RUN cp target/mikuappend-3.9.39.war $DEPLOYMENT_DIR
 
 #CMD ["/bin/sh"]
