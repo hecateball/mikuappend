@@ -2,6 +2,8 @@ package jp.mikuappend;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import javax.servlet.ServletContext;
@@ -26,10 +28,12 @@ import org.slf4j.LoggerFactory;
 public class MikuAppend implements UserStreamListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MikuAppend.class);
+    private final Map<Long, String> contexts;
     private final String endpoint;
     private final String token;
 
     public MikuAppend(ServletContext context) {
+        this.contexts = new HashMap<>();
         Properties properties = new Properties();
         try (InputStream input = context.getResourceAsStream("/WEB-INF/classes/mikuappend.properties")) {
             properties.load(input);
@@ -57,7 +61,7 @@ public class MikuAppend implements UserStreamListener {
                 request.setUtt(content);
                 request.setNickname(status.getAccount().getDisplayName());
                 request.setNicknameY(status.getAccount().getUserName());
-                request.setContext(status.getAccount().getUserName());
+                request.setContext(this.contexts.getOrDefault(status.getAccount().getId(), ""));
                 Response response = ClientBuilder.newBuilder().build()
                         .target(this.endpoint)
                         .path("/dialogue/v1/dialogue")
@@ -74,6 +78,7 @@ public class MikuAppend implements UserStreamListener {
                         } catch (Exception exception) {
                             LOGGER.warn("exception at postStatus", exception);
                         }
+                        this.contexts.put(status.getAccount().getId(), dialogueResponse.getContext());
                         return;
                     default:
                         LOGGER.warn("[status]:{}", response.getStatus());

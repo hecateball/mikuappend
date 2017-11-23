@@ -19,17 +19,16 @@ import org.slf4j.LoggerFactory;
 public class Meteora {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Meteora.class);
-    private UserStream userStream;
 
     public void onCreate(@Observes @Initialized(ApplicationScoped.class) ServletContext context) {
-        this.userStream = MastodonFactory.getInstance().streaming().userStream();
-        this.userStream.register(new MikuAppend(context));
-        this.userStream.open();
+        UserStream userStream = MastodonFactory.getInstance().streaming().userStream();
+        userStream.register(new MikuAppend(context));
+        userStream.open();
     }
 
     public void onDelete(@Observes @Destroyed(ApplicationScoped.class) ServletContext context) {
         try {
-            this.userStream.close();
+            MastodonFactory.getInstance().streaming().userStream().close();
         } catch (IOException exception) {
             LOGGER.warn("Exception on close", exception);
         }
