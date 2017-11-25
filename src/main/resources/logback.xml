@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <property name="jp.mikuappend.log.dir" value="/var/log/mikuappend"/>
+
+    <appender name="OHLC" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${jp.mikuappend.log.dir}/ohlc.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${jp.mikuappend.log.dir}/ohlc.log.%d{yyyyMM}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%logger{36}] %-5level  - %msg</pattern>
         </encoder>
     </appender>
+
+    <logger name="jp.mikuappend.vo.OHLC">
+        <appender-ref ref="OHLC" />
+    </logger>
 
     <root level="trace">
         <appender-ref ref="STDOUT" />
